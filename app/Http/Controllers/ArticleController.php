@@ -1,14 +1,14 @@
 <?php
-
 namespace App\Http\Controllers;
-
-use Illuminate\Http\Request;
 use App\Article;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-
-
 class ArticleController extends Controller
 {
+    public function __construct()
+    {
+        $this->middleware('auth', ['except' => 'show', 'index']);
+    }
     /**
      * Display a listing of the resource.
      *
@@ -16,10 +16,9 @@ class ArticleController extends Controller
      */
     public function index()
     {
-        $articles = Article::paginate(5);
-        return view('articles.index', ['articles' => $articles]);
+        $articles = Article::paginate(10);
+        return view('articles.index', compact('articles'));
     }
-
     /**
      * Show the form for creating a new resource.
      *
@@ -29,7 +28,6 @@ class ArticleController extends Controller
     {
         return view('articles.create');
     }
-
     /**
      * Store a newly created resource in storage.
      *
@@ -38,23 +36,25 @@ class ArticleController extends Controller
      */
     public function store(Request $request)
     {
-        $this->validate($request, [
-                         'title' => 'required',
-                         'content' => 'required'
-                         ],
-                     [
-                            'content.required' => 'Content obligatoire'
-                             ]);
-         
-                 Article::create([
-                        'user_id' => Auth::user()->id,
-                         'title' => $request->title,
-                         'content' => $request->content
-                         ]);
-         
-                 return redirect()->route('article.index');
+        $this->validate($request,
+            [
+                'title' => 'required|min:5',
+                'content' => 'required|min:10'
+            ],
+            [
+                'title.required' => 'Titre requis',
+                'title.min' => 'Minimum 5 caractères',
+                'content.required' => 'Contenu requis',
+                'content.min' => 'Minimum 10 caractères'
+            ]);
+        $article = new Article();
+        $input = $request->input();
+        $input['user_id'] = Auth::user()->id;
+        $article
+            ->fill($input)
+            ->save();
+        return redirect()->route('articles.index')->with('success', 'L\'article a bien été publié');
     }
-
     /**
      * Display the specified resource.
      *
@@ -64,12 +64,8 @@ class ArticleController extends Controller
     public function show($id)
     {
         $article = Article::find($id);
-        if (!$article) {
-            return redirect()->route('article.index');
-        }
         return view('articles.show', compact('article'));
     }
-
     /**
      * Show the form for editing the specified resource.
      *
@@ -79,12 +75,8 @@ class ArticleController extends Controller
     public function edit($id)
     {
         $article = Article::find($id);
-        if (!$article) {
-            return redirect()->route('article.index');
-        }
         return view('articles.edit', compact('article'));
     }
-
     /**
      * Update the specified resource in storage.
      *
@@ -94,23 +86,24 @@ class ArticleController extends Controller
      */
     public function update(Request $request, $id)
     {
-        $this->validate($request, [
-                         'title' => 'required',
-                         'content' => 'required'
-                         ],
-                     [
-                             'content.required' => 'Content obligatoire'
-                             ]);
-         
-                 $article = Article::find($id);
-         
-                 $article->title = $request->title;
-                 $article->content = $request->content;
-                 $article->save();
-         
-                 return redirect()->route('article.show', [$article->id])->with('success', 'Article modifié');
+        $this->validate($request,
+            [
+                'title' => 'required|min:5',
+                'content' => 'required|min:10'
+            ],
+            [
+                'title.required' => 'Titre requis',
+                'title.min' => 'Minimum 5 caractères',
+                'content.required' => 'Contenu requis',
+                'content.min' => 'Minimum 10 caractères'
+            ]);
+        $article = Article::find($id);
+        $input = $request->input();
+        $article
+            ->fill($input)
+            ->save();
+        return redirect()->route('articles.index')->with('success', 'L\'article a bien été modifié');
     }
-
     /**
      * Remove the specified resource from storage.
      *
@@ -120,9 +113,7 @@ class ArticleController extends Controller
     public function destroy($id)
     {
         $article = Article::find($id);
-          
-                  $article->delete();
-          
-                  return redirect()->route('article.index')->with('success', 'Article supprimé');
+        $article->delete();
+        return redirect()->route('articles.index')->with('success', 'L\'article a bien été supprimé  ');
     }
 }
