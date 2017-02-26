@@ -102,7 +102,7 @@ class ArticleController extends Controller
         $article
             ->fill($input)
             ->save();
-        return redirect()->route('articles.index')->with('success', 'L\'article a bien été modifié');
+        return redirect()->route('article.index')->with('success', 'L\'article a bien été modifié');
     }
     /**
      * Remove the specified resource from storage.
@@ -114,6 +114,6 @@ class ArticleController extends Controller
     {
         $article = Article::find($id);
         $article->delete();
-        return redirect()->route('articles.index')->with('success', 'L\'article a bien été supprimé  ');
+        return redirect()->route('article.index')->with('success', 'L\'article a bien été supprimé  ');
     }
 }
