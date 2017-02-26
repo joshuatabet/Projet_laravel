@@ -29,3 +29,8 @@ Route::get('/admin', function() {
     return view('admin');
 });
 
+Route::resource('/contact', 'ContactController');
+
+Route::get('/contact', function () {
+    return view('contact');
+});

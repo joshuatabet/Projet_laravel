@@ -58,6 +58,7 @@
                             <li><a href="{{ url('/article') }}">Articles</a></li>
                             <li><a href="{{ url('/article/create') }}">Publier</a></li>
                             <li><a href="{{ url('/user') }}">Profil</a></li>
+                            <li><a href="{{ url('/contact') }}">contact</a></li>
                             <li class="dropdown">
 
 
